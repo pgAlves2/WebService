@@ -1,0 +1,29 @@
+create function distance_between
+(from_lat decimal(18, 12), from_lng decimal(18, 12), to_lat decimal(18, 12), to_lng decimal(18, 12)) 
+	returns decimal(11,3)
+	return 6371 * 2 * atan2(
+		sqrt(pow(sin(radians(to_lat - from_lat)/2), 2) 
+			+ pow(sin(radians(to_lng - from_lng)/2), 2) 
+			* cos(radians(from_lat)) * cos(radians(to_lat))
+		),
+		sqrt(1 - pow(sin(radians(to_lat - from_lat)/2), 2) 
+			+ pow(sin(radians(to_lng - from_lng)/2), 2) 
+			* cos(radians(from_lat)) * cos(radians(to_lat))
+		)
+	);
+	
+create function min_lat(from_lat decimal(18, 12),
+distance decimal(11, 3)) returns decimal(18,12)
+return from_lat - degrees(distance/6371.0);
+
+create function max_lat(from_lat decimal(18, 12),
+distance decimal(11, 3)) returns decimal(18,12)
+return from_lat + degrees(distance/6371.0);
+
+create function min_lng(from_lat decimal(18, 12), from_lng decimal(18,12),
+distance decimal(11, 3)) returns decimal(18,12)
+return from_lng - degrees(asin(distance/6371.0)/cos(radians(from_lat)));
+
+create function max_lng(from_lat decimal(18, 12), from_lng decimal(18,12),
+distance decimal(11, 3)) returns decimal(18,12)
+return from_lng + degrees(asin(distance/6371.0)/cos(radians(from_lat)));
